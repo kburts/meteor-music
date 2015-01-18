@@ -17,12 +17,18 @@ Items.allow({
 // Methods
 
 Meteor.methods({
-  createItem: function(item){
-    if(can.createItem(Meteor.user()))
-      Items.insert(item);
+  createItem: function(title, body){
+    currentUserId = Meteor.userId();
+    if(can.createItem(currentUserId)) {
+      var newItem = Items.insert({title: title, body: body, userId: currentUserId});
+      return newItem;
+    }
+    else {
+      throw new Meteor.Error(403, 'You do not have the rights to create a new item.')
+    }
   },
   removeItem: function(item){
-    if(can.removeItem(Meteor.user(), item)){
+    if(can.removeItem(Meteor.userId(), item)){
       Items.remove(item._id);
     }else{
       throw new Meteor.Error(403, 'You do not have the rights to delete this item.')
